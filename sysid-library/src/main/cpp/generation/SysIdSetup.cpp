@@ -65,7 +65,7 @@ void AddMotorController(
       controllers->push_back(std::make_unique<WPI_TalonSRX>(port));
     } else if (controller == "TalonFX") {
       fmt::print("Setup TalonFX\n");
-      controllers->emplace_back(std::make_unique<WPI_TalonFX>(port));
+      controllers->emplace_back(std::make_unique<WPI_TalonFX>(port, "DriveSubsystem"));
     } else {
       fmt::print("Setup VictorSPX\n");
       controllers->emplace_back(std::make_unique<WPI_VictorSPX>(port));
@@ -296,7 +296,7 @@ void SetupGyro(
     std::unique_ptr<frc::Gyro>& gyro,
     std::unique_ptr<frc::ADIS16448_IMU>& ADIS16448Gyro,
     std::unique_ptr<frc::ADIS16470_IMU>& ADIS16470Gyro,
-    std::unique_ptr<PigeonIMU>& pigeon,
+    std::unique_ptr<Pigeon2>& pigeon,
     std::unique_ptr<WPI_TalonSRX>& tempTalon,
     std::function<double()>& gyroPosition, std::function<double()>& gyroRate) {
 #ifndef __FRC_ROBORIO__
@@ -322,12 +322,12 @@ void SetupGyro(
         findPort = std::find(rightPorts.begin(), rightPorts.end(), srxPort);
         if (findPort != rightPorts.end() &&
             controllerNames[findPort - rightPorts.begin()] == "TalonSRX") {
-          pigeon = std::make_unique<PigeonIMU>(dynamic_cast<WPI_TalonSRX*>(
+          pigeon = std::make_unique<Pigeon2>(dynamic_cast<WPI_TalonSRX*>(
               rightControllers.at(findPort - rightPorts.begin()).get()));
           talonDeclared = true;
         }
       } else if (controllerNames[findPort - leftPorts.begin()] == "TalonSRX") {
-        pigeon = std::make_unique<PigeonIMU>(dynamic_cast<WPI_TalonSRX*>(
+        pigeon = std::make_unique<Pigeon2>(dynamic_cast<WPI_TalonSRX*>(
             leftControllers.at(findPort - leftPorts.begin()).get()));
         talonDeclared = true;
       }
@@ -335,13 +335,13 @@ void SetupGyro(
       // If it isn't tied to an existing Talon, create a new object
       if (!talonDeclared) {
         tempTalon = std::make_unique<WPI_TalonSRX>(srxPort);
-        pigeon = std::make_unique<PigeonIMU>(tempTalon.get());
+        pigeon = std::make_unique<Pigeon2>(tempTalon.get());
         portStr = fmt::format("{} (plugged to other motorcontroller)", portStr);
       } else {
         portStr = fmt::format("{} (plugged to drive motorcontroller)", portStr);
       }
     } else {
-      pigeon = std::make_unique<PigeonIMU>(srxPort);
+      pigeon = std::make_unique<Pigeon2>(srxPort, "DriveSubsystem");
       portStr = fmt::format("{} (CAN)", portStr);
     }
 
