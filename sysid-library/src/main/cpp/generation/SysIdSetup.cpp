@@ -322,20 +322,18 @@ void SetupGyro(
         findPort = std::find(rightPorts.begin(), rightPorts.end(), srxPort);
         if (findPort != rightPorts.end() &&
             controllerNames[findPort - rightPorts.begin()] == "TalonSRX") {
-          pigeon = std::make_unique<Pigeon2>(dynamic_cast<WPI_TalonSRX*>(
-              rightControllers.at(findPort - rightPorts.begin()).get()));
+          pigeon = std::make_unique<Pigeon2>(srxPort);
           talonDeclared = true;
         }
       } else if (controllerNames[findPort - leftPorts.begin()] == "TalonSRX") {
-        pigeon = std::make_unique<Pigeon2>(dynamic_cast<WPI_TalonSRX*>(
-            leftControllers.at(findPort - leftPorts.begin()).get()));
+        pigeon = std::make_unique<Pigeon2>(srxPort);
         talonDeclared = true;
       }
 
       // If it isn't tied to an existing Talon, create a new object
       if (!talonDeclared) {
         tempTalon = std::make_unique<WPI_TalonSRX>(srxPort);
-        pigeon = std::make_unique<Pigeon2>(tempTalon.get());
+        pigeon = std::make_unique<Pigeon2>(srxPort);
         portStr = fmt::format("{} (plugged to other motorcontroller)", portStr);
       } else {
         portStr = fmt::format("{} (plugged to drive motorcontroller)", portStr);
